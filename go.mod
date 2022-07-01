@@ -1,4 +1,4 @@
-module helper
+module github.com/westarver/helper
 
 go 1.18
 
