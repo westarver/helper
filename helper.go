@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"unicode"
 
 	apath "github.com/rhysd/abspath"
 )
@@ -89,9 +90,9 @@ func DirExists(dirname string) bool {
 	return err == nil && info.IsDir()
 }
 
-//─────────────┤ validatePath ├─────────────
+//─────────────┤ ValidatePath ├─────────────
 
-func validatePath(path string) (string, error) {
+func ValidatePath(path string) (string, error) {
 	a, err := apath.ExpandFrom(path)
 	if err != nil {
 		return "", err
@@ -130,3 +131,24 @@ func RemoveDupChar(target string, char rune, length int) string {
 	}
 	return retstr
 }
+
+//─────────────┤ LeadingWs ├─────────────
+
+func LeadingWs(s string) string { //returns leading ws
+	var ws []rune
+	for _, r := range s {
+		if !unicode.IsSpace(r) {
+			break
+		}
+		ws = append(ws, r)
+	}
+	return string(ws)
+}
+
+//─────────────┤ startsWith ├─────────────
+
+func StartsWith(line, search string) bool {
+	ws := LeadingWs(line)
+	return strings.HasPrefix(line[len(ws):], search)
+}
+
