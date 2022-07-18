@@ -145,10 +145,34 @@ func LeadingWs(s string) string { //returns leading ws
 	return string(ws)
 }
 
-//─────────────┤ startsWith ├─────────────
+//─────────────┤ StartsWith ├─────────────
 
 func StartsWith(line, search string) bool {
 	ws := LeadingWs(line)
 	return strings.HasPrefix(line[len(ws):], search)
 }
 
+//─────────────┤ StripComment ├─────────────
+
+func StripComment(line, comment string) string {
+	for {
+		line = strings.TrimLeft(line, " \t")
+		if !strings.HasPrefix(line, comment) {
+			break
+		}
+		line = line[len(comment):]
+	}
+	return line
+}
+
+//─────────────┤ SplitOnDashDash ├─────────────
+
+func SplitOnDashDash(inputs, outputs []string) ([]string, []string) {
+	for i, s := range outputs {
+		if s == "--" {
+			inputs = append(inputs, outputs[i+1:]...)
+			return inputs, outputs[:i]
+		}
+	}
+	return inputs, outputs
+}
