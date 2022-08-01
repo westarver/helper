@@ -53,7 +53,7 @@ func OpenTrunc(file string) (*os.File, error) {
 	path, err := GetPath(file)
 
 	if err == nil {
-		return os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+		return os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 	}
 	return nil, err
 }
@@ -104,6 +104,12 @@ func ValidatePath(path string) (string, error) {
 		return path, err
 	}
 	return d + f, nil
+}
+
+//─────────────┤ GetLinesFromString  ├─────────────
+
+func GetLinesFromString(s string) []string {
+	return strings.Split(s, "\n")
 }
 
 //─────────────┤ CountLinesInString  ├─────────────
@@ -175,4 +181,14 @@ func SplitOnDashDash(inputs, outputs []string) ([]string, []string) {
 		}
 	}
 	return inputs, outputs
+}
+
+//─────────────┤ FindStringinString ├─────────────
+
+func FindStringinString(s, sub string) []int {
+	n := strings.Index(s, sub)
+	if n == -1 {
+		return []int{}
+	}
+	return []int{n, n + len(sub)}
 }
