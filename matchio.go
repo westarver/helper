@@ -5,9 +5,15 @@ import (
 	"strings"
 )
 
-//─────────────────────┤ matchio ├─────────────────────
-//match up input files with output files accounting for
-//mismatched lengths of slices. Extra outs will be ignored,
+type IoPair struct {
+	in string
+	out string
+}
+
+const defExt = ".match"
+//─────────────────────┤ Matchio ├─────────────────────
+//Matchio will match up input files with output files accounting
+//for mismatched lengths of slices. Extra outs will be ignored,
 //and by default extra ins will match to the last out,
 //appending output from multiple templates into a single
 //out file. If no output file names are given, matchio will
@@ -37,11 +43,11 @@ import (
 //"/d/p/e d p e" is equivalent to "/dpe d p e".  The directives
 //will work in any order, but the args must be in the same order
 //as the directives they refer to.
-func Matchio(ins []string, outs []string) []ioPair {
-	var matched []ioPair
+func Matchio(ins []string, outs []string) []IoPair {
+	var matched []IoPair
 
 	for _, f := range ins {
-		matched = append(matched, ioPair{f, "x"}) //out is dummy string for now
+		matched = append(matched, IoPair{f, "x"}) //out is dummy string for now
 	}
 
 	ilen := len(ins)
