@@ -10,7 +10,7 @@ type IoPair struct {
 	out string
 }
 
-const defExt = ".match"
+const defaultExt = ".match"
 //─────────────────────┤ Matchio ├─────────────────────
 //Matchio will match up input files with output files accounting
 //for mismatched lengths of slices. Extra outs will be ignored,
@@ -42,8 +42,9 @@ const defExt = ".match"
 //for visual reasons only. They can be but it's not required.
 //"/d/p/e d p e" is equivalent to "/dpe d p e".  The directives
 //will work in any order, but the args must be in the same order
-//as the directives they refer to.
-func Matchio(ins []string, outs []string) []IoPair {
+//as the directives they refer to.  The directive/arg string must be 
+//quoted as it has a space between directives and args
+func Matchio(ins []string, outs []string, ext ...string) []IoPair { ext is optional, prevent breaking old code
 	var matched []IoPair
 
 	for _, f := range ins {
@@ -106,7 +107,12 @@ func Matchio(ins []string, outs []string) []IoPair {
 			var args []string
 			args = append(args, ss[1:]...)
 			// if there are fewer args tha directives the
-			// following loop would panic due to index out of range
+			// loop after this one would panic due to index out of range
+			if len(ext) == 0 {
+				defExt = defaultExt
+			} else {
+				defExt = ext[0]
+			}
 			if len(args) < len(direct) {
 				matched[i].out = m.in + defExt
 				continue
