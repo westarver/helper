@@ -6,8 +6,8 @@ import (
 )
 
 type IoPair struct {
-	in  string
-	out string
+	In  string
+	Out string
 }
 
 const defaultExt = ".match"
@@ -62,7 +62,7 @@ func Matchio(ins []string, outs []string, ext ...string) []IoPair { //ext is opt
 
 	if olen == 0 { // easy one first
 		for i := 0; i < len(matched); i++ {
-			matched[i].out = matched[i].in + defExt
+			matched[i].Out = matched[i].In + defExt
 		}
 		return matched
 	}
@@ -73,33 +73,33 @@ func Matchio(ins []string, outs []string, ext ...string) []IoPair { //ext is opt
 	}
 	if mismatch == 0 { // all ins have a matching out. match them up.  later we check for wildcards.
 		for i := 0; i < len(matched); i++ {
-			matched[i].out = outs[i]
+			matched[i].Out = outs[i]
 		}
 	} else { // here we know there is at least one out but fewer outs than ins
 		for i := 0; i < olen; i++ { //copy as many outs as were given to the matched slice
-			matched[i].out = outs[i]
+			matched[i].Out = outs[i]
 		}
 		for i := olen; i < ilen; i++ { //fill in remainder of matched slice with last out
-			matched[i].out = outs[olen-1]
+			matched[i].Out = outs[olen-1]
 		}
 	}
 
 	// now we check for and parse wildcards
 	for i, m := range matched {
-		if strings.HasPrefix(m.out, "/") {
+		if strings.HasPrefix(m.Out, "/") {
 			// maybe not a file name but a slash directive,  but
 			// we do need to check for a rooted absolute path
 			// if it is we assume that was intended
 			// use 2 slashes to denote that intent
 			// ex. //home/me/my/stuff/template.tpl
-			if len(m.out) > 1 && m.out[1] == '/' {
-				matched[i].out = m.out[1:]
+			if len(m.Out) > 1 && m.Out[1] == '/' {
+				matched[i].Out = m.Out[1:]
 				continue
 			}
 
-			ss := strings.Split(m.out, " ")
+			ss := strings.Split(m.Out, " ")
 			//ss holds slash directives in ss[0] and the individual tokens in the remaining indices
-			tmp := m.in // file name is going to be the same as input with possible alterations
+			tmp := m.In // file name is going to be the same as input with possible alterations
 
 			// get rid of slashes
 			var direct string
@@ -120,7 +120,7 @@ func Matchio(ins []string, outs []string, ext ...string) []IoPair { //ext is opt
 				defExt = ext[0]
 			}
 			if len(args) < len(direct) {
-				matched[i].out = m.in + defExt
+				matched[i].Out = m.In + defExt
 				continue
 			}
 			//start a new loop
@@ -173,9 +173,9 @@ func Matchio(ins []string, outs []string, ext ...string) []IoPair { //ext is opt
 					continue
 				}
 			}
-			matched[i].out = tmp
-			if len(m.out) == 0 {
-				matched[i].out = m.in + defExt
+			matched[i].Out = tmp
+			if len(m.Out) == 0 {
+				matched[i].Out = m.In + defExt
 			}
 		}
 	}
