@@ -6,11 +6,12 @@ import (
 )
 
 type IoPair struct {
-	in string
+	in  string
 	out string
 }
 
 const defaultExt = ".match"
+
 //─────────────────────┤ Matchio ├─────────────────────
 //Matchio will match up input files with output files accounting
 //for mismatched lengths of slices. Extra outs will be ignored,
@@ -42,10 +43,15 @@ const defaultExt = ".match"
 //for visual reasons only. They can be but it's not required.
 //"/d/p/e d p e" is equivalent to "/dpe d p e".  The directives
 //will work in any order, but the args must be in the same order
-//as the directives they refer to.  The directive/arg string must be 
+//as the directives they refer to.  The directive/arg string must be
 //quoted as it has a space between directives and args
-func Matchio(ins []string, outs []string, ext ...string) []IoPair { ext is optional, prevent breaking old code
+func Matchio(ins []string, outs []string, ext ...string) []IoPair { //ext is optional, prevent breaking old code
 	var matched []IoPair
+	var defExt = defaultExt
+
+	if len(ext) > 0 {
+		defExt = ext[0]
+	}
 
 	for _, f := range ins {
 		matched = append(matched, IoPair{f, "x"}) //out is dummy string for now
@@ -175,4 +181,3 @@ func Matchio(ins []string, outs []string, ext ...string) []IoPair { ext is optio
 	}
 	return matched
 } // matchio
-
