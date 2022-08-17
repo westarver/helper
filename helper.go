@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"unicode"
 
@@ -61,6 +62,10 @@ func OpenTrunc(file string) (*os.File, error) {
 //─────────────┤ CopyFileStr ├─────────────
 
 func CopyFileStr(dst, src string) error {
+	if DirExists(dst) {
+		_, base := filepath.Split(src)
+		dst = filepath.Join(dst, base)
+	}
 	d, err := OpenTrunc(dst)
 	if err != nil {
 		return err
@@ -183,12 +188,85 @@ func SplitOnDashDash(inputs, outputs []string) ([]string, []string) {
 	return inputs, outputs
 }
 
+type SubStringStat struct {
+	Index  int
+	Length int
+	Before string
+	Match  string
+	After  string
+}
+
 //─────────────┤ FindStringinString ├─────────────
 
-func FindStringinString(s, sub string) []int {
+func StringInStringStat(s, sub string) SubStringStat {
 	n := strings.Index(s, sub)
 	if n == -1 {
-		return []int{}
+		return SubStringStat{Before: s}
 	}
-	return []int{n, n + len(sub)}
+	return SubStringStat{Index: n,
+		Length: len(sub),
+		Before: s[:n],
+		Match:  s[n : n+len(sub)],
+		After:  s[n+len(sub):],
+	}
+}
+
+//─────────────┤ getMultilineQuotedStr ├─────────────
+
+func MultilineQuotedStr(lines []string) string {
+	mlstr := strings.Join(lines, "\n")
+	m := strings.Index(mlstr, "`")
+	if m != -1 {
+		mlstr = mlstr[m+1:]
+		n := strings.LastIndex(mlstr, "`")
+		if n != -1 {
+			mlstr = mlstr[:n]
+		}
+	}
+
+	return mlstr
+}
+
+type RegexStat struct {
+	Before, Match, After string
+	Start, Length        int
+}
+
+//─────────────┤ mapFromPatSlice ├─────────────
+
+func MapFromPatSlice(pats []string) map[string]*regexp.Regexp {
+	var regs = make(map[string]*regexp.Regexp)
+	for _, p := range pats {
+		regs[p] = regexp.MustCompile(p)
+	}
+
+	return regs
+}
+
+//─────────────┤ RegexStatFromPat ├─────────────
+
+func RegexStatFromPat(pat, search string, rx ...*regexp.Regexp) RegexStat {
+	if len(search) == 0 || len(pat) == 0 {
+		return RegexStat{}
+	}
+
+	var r *regexp.Regexp
+	if len(rx) == 0 {
+		r = regexp.MustCompile(pat)
+	} else {
+		r = rx[0]
+	}
+
+	loc := r.FindStringIndex(search)
+	if loc == nil {
+		return RegexStat{Before: search}
+	}
+
+	return RegexStat{
+		Before: search[:loc[0]],
+		Match:  search[loc[0]:loc[1]],
+		After:  search[loc[1]:],
+		Start:  loc[0],
+		Length: loc[1] - loc[0],
+	}
 }
