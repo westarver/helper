@@ -15,7 +15,7 @@ func GetLogFile(file string) *os.File {
 	if file == "std" {
 		return os.Stderr
 	}
-	f, _ := OpenFile(file)
+	f, _ := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if f == nil {
 		fmt.Println("Failure to open Log file " + file + ". Will default to Stderr.")
 		f = os.Stderr
@@ -25,11 +25,11 @@ func GetLogFile(file string) *os.File {
 
 //─────────────┤ OpenFile ├─────────────
 
-func OpenFile(file string) (*os.File, error) {
+func OpenFileRead(file string) (*os.File, error) {
 	path, err := GetPath(file)
 
 	if err == nil {
-		return os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0600)
+		return os.Open(path)
 	}
 	return nil, err
 }
@@ -67,11 +67,11 @@ func CopyFileStr(dst, src string) error {
 	if err != nil {
 		return err
 	}
-	s, err := OpenFile(src)
+	s, err := OpenFileRead(src)
 	if err != nil {
 		return err
 	}
-	_, _ = io.Copy(d, s)
+	_, err = io.Copy(d, s)
 	if err != nil {
 		return err
 	}

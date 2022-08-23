@@ -120,3 +120,22 @@ func MultilineQuotedStr(lines []string) string {
 
 	return mlstr
 }
+
+//─────────────┤ MergeSlice ├─────────────
+
+func MergeSlice[T comparable](s1, s2 []T) []T {
+	var result []T
+	var found bool
+
+	s1 = append(s1, s2...)
+	for _, s := range s1 {
+		found = false
+		for _, t := range result {
+			found = (s == t)
+		}
+		if !found {
+			result = append(result, s)
+		}
+	}
+	return result
+}
